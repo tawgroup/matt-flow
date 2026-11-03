@@ -28,12 +28,27 @@ Skills are caught both when the model loads them (the Skill tool) and when you t
 
 ## Install
 
+Requires a Claude Code version with mod support (the `plugin-authoring` skill).
+
+Install once, loads in every new session:
+
 ```bash
-claude plugin marketplace add ~/.claude/local-mods/matt-flow
+claude plugin marketplace add tawgroup/matt-flow
 claude plugin install matt-flow@matt-flow
 ```
 
-Then start a new Claude Code session and type `/matt-flow`.
+Then start a new Claude Code session, send any message, and type `/matt-flow`. In a session that is already open, run `/reload-plugins` first.
+
+Try it for one session only, without installing:
+
+```bash
+git clone https://github.com/tawgroup/matt-flow.git
+claude --plugin-dir ./matt-flow
+```
+
+Claude Code generates the type files in `.claude-plugin/types/` on load. They are not committed.
+
+The skills themselves come from [mattpocock/skills](https://github.com/mattpocock/skills). This mod only draws the map; install the skills separately.
 
 ## Layout
 

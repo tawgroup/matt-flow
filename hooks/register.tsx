@@ -7,7 +7,7 @@ type Api = Parameters<Hook<'session.start'>>[0]
 
 const PANE = 'matt-flow'
 const TITLE = 'Matt flow'
-const DUMB = 120_000 // Matt's "dumb zone": past ~120K tokens of context the model gets worse
+const DUMB = 250_000 // the "dumb zone": past this much context the model gets worse (Matt says ~120K; raised for 1M-context models)
 
 // Change a tag when that value's fields change: it declines what an earlier version stored.
 const hits = atom({ plugin: 'matt-flow', key: 'hits' } as const, [] as Hit[], { shape: 'hits-1' })

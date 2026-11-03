@@ -92,7 +92,7 @@ test('past the dumb zone the pane says to hand off', async ($, on) => {
   engine(on, [])
   on('session.measure', (_, e) => ({ changed: e.changed }))
   await $.session.start({ cwd: '/p', surface: 'desktop', isInteractive: true })
-  await $.session.measure({ context: { window: 1_000_000, tokens: 130_000 }, rateLimits: [], changed: ['context'] })
+  await $.session.measure({ context: { window: 1_000_000, tokens: 260_000 }, rateLimits: [], changed: ['context'] })
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
   expect(await texts(ui)).toContain('Đã vào dumb zone')
   await ui.unmount()

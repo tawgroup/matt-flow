@@ -1,0 +1,12 @@
+{
+  "name": "matt-flow",
+  "owner": { "name": "tawgroup" },
+  "description": "Matt Pocock flow map mod for Claude Code",
+  "plugins": [
+    {
+      "name": "matt-flow",
+      "source": "./",
+      "description": "Matt Pocock's AI coding flow as a live map: which phase this session is in, what comes next. Type /matt-flow"
+    }
+  ]
+}

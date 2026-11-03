@@ -1,0 +1,1 @@
+{ "name": "matt-flow", "version": "0.1.0", "description": "Matt Pocock's AI coding flow as a live map: which phase this session is in, which skills ran, what comes next. Type /matt-flow", "types": "./types/index.d.ts", "license": "MIT" }

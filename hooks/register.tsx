@@ -23,53 +23,53 @@ type Phase = { id: string; n: number; name: string; optional?: true; main: strin
 
 const PHASES: Phase[] = [
   {
-    id: 'idea', n: 1, name: 'Ý tưởng',
+    id: 'idea', n: 1, name: 'Idea',
     main: ['wayfinder', 'grill-with-docs'],
     skills: ['grill-with-docs', 'grill-me', 'grilling', 'wayfinder', 'domain-modeling', 'ubiquitous-language', 'to-questionnaire'],
-    about: 'Agent hỏi dồn tới khi hai bên hiểu giống nhau. Có codebase thì dùng grill-with-docs. Chưa có codebase thì dùng grill-me. Việc quá to và còn mù mờ thì dùng wayfinder.',
-    next: 'Đủ rõ thì /to-spec cho việc lớn, /implement cho việc nhỏ. Câu hỏi cần thấy code hoặc UI mới trả lời được thì /handoff rồi /prototype.',
+    about: 'The agent keeps asking questions until you both share the same understanding. With a codebase, use grill-with-docs. Without one, use grill-me. For a big, still-fuzzy job, use wayfinder.',
+    next: 'Once it is clear: /to-spec for big work, /implement for small work. If a question needs real code or UI to answer, /handoff then /prototype.',
   },
   {
     id: 'research', n: 2, name: 'Research', optional: true,
     main: ['research'],
     skills: ['research'],
-    about: 'Tra tài liệu gốc cho API hoặc dịch vụ khó. Kết quả lưu ra file để phiên sau khỏi tra lại.',
-    next: 'Cần thử cho chắc thì /prototype. Không thì /to-spec.',
+    about: 'Look up primary docs for a tricky API or service. Findings are saved to a file so later sessions need not look again.',
+    next: 'Need to try it first? /prototype. Otherwise /to-spec.',
   },
   {
     id: 'prototype', n: 3, name: 'Prototype', optional: true,
     main: ['prototype'],
     skills: ['prototype'],
-    about: 'Làm bản nháp dùng xong bỏ để trả lời một câu hỏi thiết kế: UI trông ra sao, logic có đúng không.',
-    next: '/handoff về phiên đang grill để chốt, hoặc /to-spec.',
+    about: 'Build a throwaway draft to answer one design question: what the UI looks like, whether the logic is right.',
+    next: '/handoff back to the grilling session to decide, or /to-spec.',
   },
   {
     id: 'spec', n: 4, name: 'Spec',
     main: ['to-spec'],
     skills: ['to-spec', 'write-a-prd'],
-    about: 'Viết đích đến: người dùng thấy gì, hệ thống làm gì. Chưa cần chi tiết cách làm.',
-    next: '/to-tickets để chia việc.',
+    about: 'Write the destination: what the user sees, what the system does. No implementation detail yet.',
+    next: '/to-tickets to split the work.',
   },
   {
     id: 'tickets', n: 5, name: 'Tickets',
     main: ['to-tickets'],
     skills: ['to-tickets', 'prd-to-issues', 'triage'],
-    about: 'Chia spec thành ticket theo lát dọc. Ticket có quan hệ chặn nhau. Mỗi ticket vừa một context window.',
-    next: '/clear, mở phiên mới, rồi /implement từng ticket.',
+    about: 'Split the spec into vertical-slice tickets with blocking relations. Each ticket fits one context window.',
+    next: '/clear, start a fresh session, then /implement one ticket at a time.',
   },
   {
-    id: 'build', n: 6, name: 'Thực thi',
+    id: 'build', n: 6, name: 'Build',
     main: ['implement', 'tdd'],
     skills: ['implement', 'implement-spec', 'tdd', 'diagnosing-bugs', 'code-review', 'pr'],
-    about: 'Làm từng ticket, viết test trước theo red-green-refactor. implement tự chạy type check và test, rồi gọi code-review ở sub-agent riêng.',
-    next: '/qa để người test tay. Bug nào cũng thành ticket mới.',
+    about: 'Work ticket by ticket, tests first (red-green-refactor). implement runs type checks and tests itself, then calls code-review in a separate sub-agent.',
+    next: '/qa for a human to test by hand. Every bug becomes a new ticket.',
   },
   {
     id: 'qa', n: 7, name: 'QA',
     main: ['qa'],
     skills: ['qa'],
-    about: 'Agent soạn kế hoạch test. Con người test tay. Bug mới thành ticket rồi quay lại bước 6.',
-    next: 'Còn bug thì /implement tiếp. Hết bug thì commit.',
+    about: 'The agent writes the test plan. A human tests by hand. New bugs become tickets and go back to step 6.',
+    next: 'Bugs left? /implement again. No bugs? Commit.',
   },
 ]
 
@@ -180,13 +180,13 @@ export const register: Register = on => {
       const title = (
         <Button plain key={`phase:${p.id}`} onPress={() => void update($, detail, d => (d === p.id ? null : p.id))}>
           <Text color={color} bold={isCur} dimColor={!isCur && !isDone}>{mark} {p.n}. {label(p)}</Text>
-          <Text dimColor> {p.name}{p.optional ? ' (tuỳ chọn)' : ''}{isSkipped ? ' · bỏ qua' : ''}</Text>
+          <Text dimColor> {p.name}{p.optional ? ' (optional)' : ''}{isSkipped ? ' · skipped' : ''}</Text>
         </Button>
       )
       const more = open === p.id && (
         <Box flexDirection="column" paddingLeft={2}>
           <Text dimColor>{p.about}</Text>
-          <Text dimColor>Cũng tính: {p.skills.filter(s => !p.main.includes(s)).map(s => `/${s}`).join(' ') || 'không có'}</Text>
+          <Text dimColor>Also counts: {p.skills.filter(s => !p.main.includes(s)).map(s => `/${s}`).join(' ') || 'none'}</Text>
         </Box>
       )
       if (isCur) {
@@ -194,7 +194,7 @@ export const register: Register = on => {
           <Box flexDirection="column" borderStyle="round" borderColor="cyan" paddingX={1}>
             {title}
             {used !== '' && <Text color="green">  {used}</Text>}
-            <Text>  <Text bold>Tiếp:</Text> {p.next}</Text>
+            <Text>  <Text bold>Next:</Text> {p.next}</Text>
             {more}
           </Box>,
         )
@@ -218,7 +218,7 @@ export const register: Register = on => {
       <Box flexDirection="column">
         <Text>
           <Text bold color="magenta">Matt flow</Text>
-          <Text dimColor> · {cur ? `bước ${cur.n}/7 ${label(cur)}` : 'chưa bắt đầu'}</Text>
+          <Text dimColor> · {cur ? `step ${cur.n}/7 ${label(cur)}` : 'not started'}</Text>
         </Text>
         {tokens != null && (
           <Text>
@@ -227,26 +227,26 @@ export const register: Register = on => {
           </Text>
         )}
         {tokens != null && tokens >= DUMB && (
-          <Text color="red">Đã vào dumb zone. Nên /handoff, hoặc /to-spec rồi /clear.</Text>
+          <Text color="red">In the dumb zone. Time to /handoff, or /to-spec then /clear.</Text>
         )}
         {!cur && (
-          <Text dimColor>Chưa chạy skill nào của Matt. Việc to và còn mù mờ thì bắt đầu bằng /wayfinder. Có codebase thì /grill-with-docs, chưa có thì /grill-me.</Text>
+          <Text dimColor>No Matt skill has run yet. For a big, fuzzy job, start with /wayfinder. With a codebase, /grill-with-docs; without one, /grill-me.</Text>
         )}
-        <Text dimColor>Bấm vào một bước để xem giải thích.</Text>
+        <Text dimColor>Click a step to see what it does.</Text>
         <Text> </Text>
         {rows}
-        <Text dimColor>    ↺ bug từ QA quay lại bước 6</Text>
+        <Text dimColor>    ↺ bugs from QA go back to step 6</Text>
         <Text> </Text>
-        <Text bold color="cyan">Công cụ phụ</Text>
-        {side !== '' ? <Text>{side}</Text> : <Text dimColor>/handoff khi context đầy hoặc gặp việc ngoài lề.</Text>}
+        <Text bold color="cyan">Side tools</Text>
+        {side !== '' ? <Text>{side}</Text> : <Text dimColor>/handoff when context is full or a side task comes up.</Text>}
         {list.length > 0 && (
           <Box flexDirection="column">
             <Text> </Text>
-            <Text bold color="cyan">Vừa chạy</Text>
+            <Text bold color="cyan">Recent</Text>
             {list.slice(-5).reverse().map(x => (
               <Text>
                 <Text dimColor>{clock(x.at)} </Text>/{x.skill}
-                <Text dimColor> · {x.phase === 'side' ? 'công cụ phụ' : `bước ${PHASES.find(p => p.id === x.phase)?.n}`}</Text>
+                <Text dimColor> · {x.phase === 'side' ? 'side tool' : `step ${PHASES.find(p => p.id === x.phase)?.n}`}</Text>
               </Text>
             ))}
           </Box>

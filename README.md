@@ -17,8 +17,8 @@ Side tools such as `handoff` and `improve-codebase-architecture` are counted in 
 ## Use
 
 - The pane opens by itself when a session starts. `/matt-flow` closes it and opens it again.
-- The phase of the latest skill is boxed and marked `▶`. Phases with skills that ran are `✓`. Phases jumped over are marked "bỏ qua".
-- Under the current phase, "Tiếp" says what to run next.
+- The phase of the latest skill is boxed and marked `▶`. Phases with skills that ran are `✓`. Phases jumped over are marked "skipped".
+- Under the current phase, "Next" says what to run next.
 - Click a step to read what it is for and which other skills count toward it.
 - A context bar shows how close the session is to the "dumb zone", set at 250K tokens, and warns once it is past it. Matt puts it at ~120K; change `DUMB` in `hooks/register.tsx` to taste.
 - The status line shows `matt-flow 4/7 /to-spec`.

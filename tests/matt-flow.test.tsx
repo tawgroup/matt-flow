@@ -39,7 +39,7 @@ test('an empty pane points at grill', async ($, on) => {
   for (const surface of SURFACES) {
     const ui = await $.ui.mount({ ...PANE, surface })
     const all = await texts(ui)
-    expect(all).toContain('chưa bắt đầu')
+    expect(all).toContain('not started')
     expect(all).toContain('/grill-with-docs')
     await ui.unmount()
   }
@@ -61,19 +61,19 @@ test('the pane opens with the session, and skills light up their phase', async (
   for (const surface of SURFACES) {
     const ui = await $.ui.mount({ ...PANE, surface })
     const all = await texts(ui)
-    expect(all).toContain('bước 4/7 /to-spec')
+    expect(all).toContain('step 4/7 /to-spec')
     expect(all).toContain('1. /wayfinder · /grill-with-docs')
     expect(all).toContain('6. /implement · /tdd')
     expect(all).toContain('/to-tickets')
     expect(all).toContain('grill-with-docs ×1')
     expect(all).toContain('handoff ×1')
-    expect(all).toContain('bỏ qua')
+    expect(all).toContain('skipped')
     expect(all).not.toContain('not-a-matt-skill')
 
     await ui.press({ key: 'phase:qa' })
-    expect(await texts(ui)).toContain('Con người test tay')
+    expect(await texts(ui)).toContain('A human tests by hand')
     await ui.press({ key: 'phase:qa' })
-    expect(await texts(ui)).not.toContain('Con người test tay')
+    expect(await texts(ui)).not.toContain('A human tests by hand')
     await ui.unmount()
   }
 })
@@ -88,7 +88,7 @@ test('a skill typed as a slash command counts too', async ($, on) => {
     origin: { kind: 'composer' },
   })
   const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
-  expect(await texts(ui)).toContain('bước 3/7 /prototype')
+  expect(await texts(ui)).toContain('step 3/7 /prototype')
   await ui.unmount()
 })
 
@@ -98,6 +98,6 @@ test('past the dumb zone the pane says to hand off', async ($, on) => {
   await $.session.start({ cwd: '/p', surface: 'desktop', isInteractive: true })
   await $.session.measure({ context: { window: 1_000_000, tokens: 260_000 }, rateLimits: [], changed: ['context'] })
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
-  expect(await texts(ui)).toContain('Đã vào dumb zone')
+  expect(await texts(ui)).toContain('In the dumb zone')
   await ui.unmount()
 })

@@ -59,7 +59,9 @@ test('skills light up their phase, the latest is current, and the pane opens onc
   for (const surface of SURFACES) {
     const ui = await $.ui.mount({ ...PANE, surface })
     const all = await texts(ui)
-    expect(all).toContain('bước 4/7 Spec')
+    expect(all).toContain('bước 4/7 /to-spec')
+    expect(all).toContain('1. /wayfinder · /grill-with-docs')
+    expect(all).toContain('6. /implement · /tdd')
     expect(all).toContain('/to-tickets')
     expect(all).toContain('grill-with-docs ×1')
     expect(all).toContain('handoff ×1')
@@ -84,7 +86,7 @@ test('a skill typed as a slash command counts too', async ($, on) => {
     origin: { kind: 'composer' },
   })
   const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
-  expect(await texts(ui)).toContain('bước 3/7 Prototype')
+  expect(await texts(ui)).toContain('bước 3/7 /prototype')
   await ui.unmount()
 })
 

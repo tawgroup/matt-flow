@@ -18,47 +18,55 @@ const detail = atom({ plugin: 'matt-flow', key: 'detail' } as const, null as str
 // Matt Pocock's 7 phases of AI-driven development (video 14) with the skills of
 // mattpocock/skills v1.1 (video 30) placed on them.
 
-type Phase = { id: string; n: number; name: string; optional?: true; skills: string[]; about: string; next: string }
+// `main` names the step on the map; `skills` is every skill that counts toward it.
+type Phase = { id: string; n: number; name: string; optional?: true; main: string[]; skills: string[]; about: string; next: string }
 
 const PHASES: Phase[] = [
   {
     id: 'idea', n: 1, name: 'Ý tưởng',
+    main: ['wayfinder', 'grill-with-docs'],
     skills: ['grill-with-docs', 'grill-me', 'grilling', 'wayfinder', 'domain-modeling', 'ubiquitous-language', 'to-questionnaire'],
     about: 'Agent hỏi dồn tới khi hai bên hiểu giống nhau. Có codebase thì dùng grill-with-docs. Chưa có codebase thì dùng grill-me. Việc quá to và còn mù mờ thì dùng wayfinder.',
     next: 'Đủ rõ thì /to-spec cho việc lớn, /implement cho việc nhỏ. Câu hỏi cần thấy code hoặc UI mới trả lời được thì /handoff rồi /prototype.',
   },
   {
     id: 'research', n: 2, name: 'Research', optional: true,
+    main: ['research'],
     skills: ['research'],
     about: 'Tra tài liệu gốc cho API hoặc dịch vụ khó. Kết quả lưu ra file để phiên sau khỏi tra lại.',
     next: 'Cần thử cho chắc thì /prototype. Không thì /to-spec.',
   },
   {
     id: 'prototype', n: 3, name: 'Prototype', optional: true,
+    main: ['prototype'],
     skills: ['prototype'],
     about: 'Làm bản nháp dùng xong bỏ để trả lời một câu hỏi thiết kế: UI trông ra sao, logic có đúng không.',
     next: '/handoff về phiên đang grill để chốt, hoặc /to-spec.',
   },
   {
     id: 'spec', n: 4, name: 'Spec',
+    main: ['to-spec'],
     skills: ['to-spec', 'write-a-prd'],
     about: 'Viết đích đến: người dùng thấy gì, hệ thống làm gì. Chưa cần chi tiết cách làm.',
     next: '/to-tickets để chia việc.',
   },
   {
     id: 'tickets', n: 5, name: 'Tickets',
+    main: ['to-tickets'],
     skills: ['to-tickets', 'prd-to-issues', 'triage'],
     about: 'Chia spec thành ticket theo lát dọc. Ticket có quan hệ chặn nhau. Mỗi ticket vừa một context window.',
     next: '/clear, mở phiên mới, rồi /implement từng ticket.',
   },
   {
     id: 'build', n: 6, name: 'Thực thi',
+    main: ['implement', 'tdd'],
     skills: ['implement', 'implement-spec', 'tdd', 'diagnosing-bugs', 'code-review', 'pr'],
     about: 'Làm từng ticket, viết test trước theo red-green-refactor. implement tự chạy type check và test, rồi gọi code-review ở sub-agent riêng.',
     next: '/qa để người test tay. Bug nào cũng thành ticket mới.',
   },
   {
     id: 'qa', n: 7, name: 'QA',
+    main: ['qa'],
     skills: ['qa'],
     about: 'Agent soạn kế hoạch test. Con người test tay. Bug mới thành ticket rồi quay lại bước 6.',
     next: 'Còn bug thì /implement tiếp. Hết bug thì commit.',
@@ -86,7 +94,8 @@ const bar = (pct: number, width: number) => {
   return '█'.repeat(fill) + '░'.repeat(w - fill)
 }
 const clock = (t: number) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-const statusOf = (p: Phase | null) => (p ? `matt-flow ${p.n}/7 ${p.name}` : undefined)
+const label = (p: Phase) => p.main.map(s => `/${s}`).join(' · ')
+const statusOf = (p: Phase | null) => (p ? `matt-flow ${p.n}/7 ${label(p)}` : undefined)
 const isUp = async ($: Api) => (await $.ui.panes()).some(p => p.id === PANE)
 
 async function record($: Api, raw: string) {
@@ -121,7 +130,7 @@ export const register: Register = on => {
     }
     await $.ui.open({ id: PANE, title: TITLE })
     const cur = currentOf(await read($, hits))
-    return { text: cur ? `Matt flow: step ${cur.n}/7 ${cur.name}.` : 'Matt flow opened.' }
+    return { text: cur ? `Matt flow: step ${cur.n}/7 ${label(cur)}.` : 'Matt flow opened.' }
   })
 
   // A skill the model loads goes through the Skill tool.
@@ -169,14 +178,14 @@ export const register: Register = on => {
       const color = isCur ? 'cyan' : isDone ? 'green' : undefined
       const title = (
         <Button plain key={`phase:${p.id}`} onPress={() => void update($, detail, d => (d === p.id ? null : p.id))}>
-          <Text color={color} dimColor={!isCur && !isDone}>{mark} {p.n}. {p.name}</Text>
-          <Text dimColor>{p.optional ? ' (tuỳ chọn)' : ''}{isSkipped ? ' · bỏ qua' : ''}</Text>
+          <Text color={color} bold={isCur} dimColor={!isCur && !isDone}>{mark} {p.n}. {label(p)}</Text>
+          <Text dimColor> {p.name}{p.optional ? ' (tuỳ chọn)' : ''}{isSkipped ? ' · bỏ qua' : ''}</Text>
         </Button>
       )
       const more = open === p.id && (
         <Box flexDirection="column" paddingLeft={2}>
           <Text dimColor>{p.about}</Text>
-          <Text dimColor>Skill: {p.skills.map(s => `/${s}`).join(' ')}</Text>
+          <Text dimColor>Cũng tính: {p.skills.filter(s => !p.main.includes(s)).map(s => `/${s}`).join(' ') || 'không có'}</Text>
         </Box>
       )
       if (isCur) {
@@ -208,7 +217,7 @@ export const register: Register = on => {
       <Box flexDirection="column">
         <Text>
           <Text bold color="magenta">Matt flow</Text>
-          <Text dimColor> · {cur ? `bước ${cur.n}/7 ${cur.name}` : 'chưa bắt đầu'}</Text>
+          <Text dimColor> · {cur ? `bước ${cur.n}/7 ${label(cur)}` : 'chưa bắt đầu'}</Text>
         </Text>
         {tokens != null && (
           <Text>
@@ -220,7 +229,7 @@ export const register: Register = on => {
           <Text color="red">Đã vào dumb zone. Nên /handoff, hoặc /to-spec rồi /clear.</Text>
         )}
         {!cur && (
-          <Text dimColor>Chưa chạy skill nào của Matt. Có codebase thì bắt đầu bằng /grill-with-docs, chưa có thì /grill-me.</Text>
+          <Text dimColor>Chưa chạy skill nào của Matt. Việc to và còn mù mờ thì bắt đầu bằng /wayfinder. Có codebase thì /grill-with-docs, chưa có thì /grill-me.</Text>
         )}
         <Text dimColor>Bấm vào một bước để xem giải thích.</Text>
         <Text> </Text>
@@ -236,7 +245,7 @@ export const register: Register = on => {
             {list.slice(-5).reverse().map(x => (
               <Text>
                 <Text dimColor>{clock(x.at)} </Text>/{x.skill}
-                <Text dimColor> · {x.phase === 'side' ? 'công cụ phụ' : PHASES.find(p => p.id === x.phase)?.name}</Text>
+                <Text dimColor> · {x.phase === 'side' ? 'công cụ phụ' : `bước ${PHASES.find(p => p.id === x.phase)?.n}`}</Text>
               </Text>
             ))}
           </Box>

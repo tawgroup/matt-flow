@@ -120,6 +120,7 @@ export const register: Register = on => {
       description: "Toggle the map of Matt Pocock's AI coding flow: where this session is, what comes next",
     })
     $.ui.status(statusOf(currentOf(await read($, hits))))
+    void $.ui.open({ id: PANE, title: TITLE })
     return next(e)
   })
 

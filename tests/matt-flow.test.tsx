@@ -20,7 +20,7 @@ const SURFACES = ['terminal', 'desktop'] as const
 // Each hook here stands for the engine beneath the mod.
 const engine = (on: Parameters<TestBody>[1], opened: string[]) => {
   on('command.register', () => ({ value: { command: 'matt-flow' } }))
-  on('ui.panes', () => ({ value: [] }))
+  on('ui.panes', () => ({ value: opened.map(id => ({ id })) as never }))
   on('ui.open', (_, e) => {
     opened.push(e.id)
     return { value: { isPlaced: true } }
@@ -45,10 +45,12 @@ test('an empty pane points at grill', async ($, on) => {
   }
 })
 
-test('skills light up their phase, the latest is current, and the pane opens once', async ($, on) => {
+test('the pane opens with the session, and skills light up their phase', async ($, on) => {
   const opened: string[] = []
   engine(on, opened)
   await $.session.start({ cwd: '/p', surface: 'desktop', isInteractive: true })
+  await new Promise(r => setTimeout(r, 0))
+  expect(opened).toEqual(['matt-flow'])
 
   await $.tool.call({ tool: 'Skill', skill: 'grill-with-docs' })
   await $.tool.call({ tool: 'Skill', skill: 'anthropic-skills:handoff' })

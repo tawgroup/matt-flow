@@ -16,8 +16,7 @@ Side tools such as `handoff` and `improve-codebase-architecture` are counted in 
 
 ## Use
 
-- `/matt-flow` opens the pane. Type it again to close it.
-- The pane also opens by itself the first time a flow skill runs in a session.
+- The pane opens by itself when a session starts. `/matt-flow` closes it and opens it again.
 - The phase of the latest skill is boxed and marked `▶`. Phases with skills that ran are `✓`. Phases jumped over are marked "bỏ qua".
 - Under the current phase, "Tiếp" says what to run next.
 - Click a step to read what it is for and which other skills count toward it.
